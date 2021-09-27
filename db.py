@@ -6,6 +6,9 @@ client = motor.motor_asyncio.AsyncIOMotorClient('mongodb+srv://Aryan:R9IKl1EXJXD
 database = client.TodoList
 collection = database.todo
 
+db = client.Image_Collection
+coll = db.Images
+
 async def fetch_one_todo(title):    
     document = collection.find_one({"title":title})
     return document
@@ -21,6 +24,11 @@ async def create_todo(todo):
     document = todo
     result = await collection.insert_one(document)
     return document
+
+async def create_img(Images):
+    doc = Images
+    res = await coll.insert_one(doc)
+    return doc
 
 async def update_todo(title, desc):
     await collection.update_one({"title":title},{"$set":{
