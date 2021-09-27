@@ -18,7 +18,7 @@ from db import (
 
 app = FastAPI()
 
-vector = cv.imread('/Users/Manjiri1/OpenCV/photos/ im1.jpeg')
+# vector = cv.imread('/Users/Manjiri1/OpenCV/photos/ im1.jpeg')
 
 origins = ['https://localhost:3000']
 
@@ -53,15 +53,22 @@ async def post_todo(todo:Todo):
 #     StreamingResponse = await create_todo(todo.dict())
 #     return StreamingResponse(io.BytesIO(im_jpg.tobytes()), media_type='image/jpeg')
 
-@app.post('/api/todo/', response_model=Image)
-async def image(file: UploadFile = File('/Users/Manjiri1/OpenCV/photos/ im1.jpeg')):
-    response = await create_todo(todo.dict())
-    contents = await file.read()
-    nparr = np.fromstring(contents, np.uint8)
-    img = cv.imdecode(nparr, cv.IMREAD_COLOR)
+# @app.post('/api/todo/', response_model=Image)
+# async def image(file: UploadFile = File('/Users/Manjiri1/OpenCV/photos/ im1.jpeg')):
+#     response = await create_todo(todo.dict())
+#     contents = await file.read()
+#     nparr = np.fromstring(contents, np.uint8)
+#     img = cv.imdecode(nparr, cv.IMREAD_COLOR)
 
-    img_dimensions = str(img.shape)
-    encoded_img = base64.b64encode(img)
+#     img_dimensions = str(img.shape)
+#     encoded_img = base64.b64encode(img)
+
+@app.post('/api/image', response_model=Image)
+async def image(Images: UploadFile = File('/Users/Manjiri1/OpenCV/photos/ im1.jpeg')):
+    response = await create_img(Images.dict())
+    if response:
+        return response
+    raise HTTPException(400, "bad request")
 
 @app.put("/api/todo{title}", response_model=Todo)
 async def put_todo(title:str, desc:str):
