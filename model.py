@@ -1,5 +1,3 @@
-from typing import Optional
-from fastapi.params import File
 from pydantic import BaseModel
 
 class Image(BaseModel):
