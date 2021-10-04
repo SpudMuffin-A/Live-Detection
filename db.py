@@ -10,9 +10,13 @@ db = client.Image_Collection
 coll = db.Images
 
 async def fetch_one_todo(title):    
-    document = collection.find_one({"title":title})
+    document = await collection.find_one({"title":title})
     return document
 
+async def fetch_img(filename):
+    document = await coll.find_one({'filename': filename})
+    return document
+    
 async def fetch_all_todos():
     todos = []
     cursor = collection.find({})
@@ -27,7 +31,10 @@ async def create_todo(todo):
 
 async def create_img(Images):
     doc = Images
-    res = await coll.insert_one(doc)
+    res = await coll.insert_one({'filename':Images['filename'], 'encoded_img': Images['encoded_img']})
+    # res = await coll.insert_one({'filename':Images['filename']}, {'encoded_img': 'Test'})
+    #res = await coll.insert_one(Images)
+    print(res)
     return doc
 
 async def update_todo(title, desc):
