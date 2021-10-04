@@ -1,24 +1,25 @@
-import io
+import webbrowser
 import numpy as np
 import cv2 as cv
 import base64
+from pydantic.networks import int_domain_regex
+from pydantic.typing import display_as_type
 from starlette import responses
 from starlette.responses import StreamingResponse
-from model import Image, Todo
+from model import Image, Todo, ImageResponse
 from fastapi import FastAPI, HTTPException, File, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from db import (
+    create_img,
+    fetch_img,
     fetch_one_todo,
     fetch_all_todos,
     create_todo,
     update_todo,
     remove_todo,
-
 )
 
 app = FastAPI()
-
-# vector = cv.imread('/Users/Manjiri1/OpenCV/photos/ im1.jpeg')
 
 origins = ['https://localhost:3000']
 
@@ -59,16 +60,48 @@ async def post_todo(todo:Todo):
 #     contents = await file.read()
 #     nparr = np.fromstring(contents, np.uint8)
 #     img = cv.imdecode(nparr, cv.IMREAD_COLOR)
-
 #     img_dimensions = str(img.shape)
 #     encoded_img = base64.b64encode(img)
+#     if response:
+#         return response
+#     raise HTTPException(400, "bad request")
 
-@app.post('/api/image', response_model=Image)
-async def image(Images: UploadFile = File('/Users/Manjiri1/OpenCV/photos/ im1.jpeg')):
-    response = await create_img(Images.dict())
+@app.post('/api/Images')
+async def image(Images: UploadFile = File(...)):
+    filename = Images.filename
+    content = await Images.read() 
+    encoded_img = base64.b64encode(content)
+    img = {}
+    img['filename'] = filename
+    img['encoded_img'] = encoded_img
+    response = await create_img(img)
+    print(len(content))
+    print(len(encoded_img))
     if response:
         return response
     raise HTTPException(400, "bad request")
+
+@app.get('/api/Images{filename}', response_model=ImageResponse)
+async def get_image(filename):
+    response = await fetch_img(filename)
+    i = base64.b64decode(response['encoded_img'])
+    # new_img = cv.imread(i, cv.cvtColor)
+    # i = open('img', "rb")
+    img = response['encoded_img']
+    img_tag = '<img src = data:image/jpeg;base64{0}>'.format(img)
+    f = open('image.html', 'w')
+    message = """<html>
+    <head></head>
+    <body>""" + img_tag + """</body>
+    </html>"""
+    f.write(message)
+    f.close()
+    # print(message)
+    f_name = 'file:///Users/Manjiri1/fastapi/' + 'image.html'
+    webbrowser.open_new_tab(f_name)
+    # print(img_tag)
+    #response['encoded_img'] = img
+    return response
 
 @app.put("/api/todo{title}", response_model=Todo)
 async def put_todo(title:str, desc:str):
