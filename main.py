@@ -1,13 +1,14 @@
-import webbrowser
 import numpy as np
 import cv2 as cv
 import base64
-from pydantic.networks import int_domain_regex
-from pydantic.typing import display_as_type
-from starlette import responses
-from starlette.responses import StreamingResponse
+# import face_recog 
+# from pydantic.networks import int_domain_regex
+# from pydantic.typing import display_as_type
+# from starlette import responses
+# from starlette.responses import StreamingResponse
 from model import Image, Todo, ImageResponse
-from fastapi import FastAPI, HTTPException, File, UploadFile
+from fastapi import FastAPI, HTTPException, UploadFile, File, Request, Form
+from fastapi.templating import Jinja2Templates
 from fastapi.middleware.cors import CORSMiddleware
 from db import (
     create_img,
@@ -20,14 +21,24 @@ from db import (
 )
 
 app = FastAPI()
+templates = Jinja2Templates(directory="templates/")
 
-origins = ['https://localhost:3000']
+origins = ['https://localhost:3000/ ']
 
-app.add_middleware(CORSMiddleware, allow_origins=origins, allow_credentials=True, allow_methods=["*"], allow_headers=["*"])
+app.add_middleware(CORSMiddleware, allow_origins=['*'], allow_credentials=True, allow_methods=["*"], allow_headers=["*"])
 
 @app.get("/")
 def read_root():
     return {"ping":"pong"}
+
+# @app.get('/form')
+# def form_post(request: Request):
+#     result = "Enter name"
+#     return templates.TemplateResponse('form.html', context={'request': request, 'result': result})
+
+@app.post('/image')
+def show_image(request: Request):
+    return templates.TemplateResponse('form.html')
 
 @app.get("/api/todo")
 async def get_todo():
@@ -81,24 +92,28 @@ async def image(Images: UploadFile = File(...)):
         return response
     raise HTTPException(400, "bad request")
 
-@app.get('/api/Images{filename}', response_model=ImageResponse)
+@app.get('/api/Images/{filename}', response_model=ImageResponse)
 async def get_image(filename):
     response = await fetch_img(filename)
     i = base64.b64decode(response['encoded_img'])
+    # print(i)
     # new_img = cv.imread(i, cv.cvtColor)
     # i = open('img', "rb")
-    img = response['encoded_img']
-    img_tag = '<img src = data:image/jpeg;base64{0}>'.format(img)
-    f = open('image.html', 'w')
-    message = """<html>
-    <head></head>
-    <body>""" + img_tag + """</body>
-    </html>"""
-    f.write(message)
-    f.close()
+    img = response['encoded_img'].decode('utf-8')
+    # return templates.TemplateResponse('image.html')
+    # print(img)
+    # img_tag = "<img src = data:image/jpg;base64,{0}>".format(sent_img)
+    # f = open('image.html', 'w')
+    # message = """<html>
+    # <head></head>
+    # <body>""" + img_tag + """</body>
+    # </html>"""
     # print(message)
-    f_name = 'file:///Users/Manjiri1/fastapi/' + 'image.html'
-    webbrowser.open_new_tab(f_name)
+    # f_name = 'file:///Users/Manjiri1/fastapi/' + 'image.html'
+    # webbrowser.open_new_tab(f_name)
+    # img = img
+    # cv.imshow('Image', img)
+    # face_recog.recognize(sent_img)
     # print(img_tag)
     #response['encoded_img'] = img
     return response
