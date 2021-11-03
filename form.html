@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>Form</title>
+    </head>
+    <body>
+        <img id ="image"/>
+        <form >
+            Enter name: <input type="text" id="name">
+            <input type="submit" id="submit-btn">
+          </form>
+          
+          <script>
+          document.getElementById("submit-btn").addEventListener("click", function(event){
+            event.preventDefault()
+            myFunction()
+          });
+          
+          function myFunction() {
+          const image = document.getElementById("image");
+          var nameValue = document.getElementById("name").value;
+          
+        //   image.src = 'https://upload.wikimedia.org/wikipedia/en/thumb/7/7d/Lenna_%28test_image%29.png/440px-Lenna_%28test_image%29.png';
+        image.src = 'http://127.0.0.1:8000/api/Images/images.jpeg';
+          }
+          </script> 
+        </body>
+</html>
