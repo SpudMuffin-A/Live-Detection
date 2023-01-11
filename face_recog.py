@@ -2,7 +2,7 @@ import cv2 as cv
 import numpy as np
 haar_cascade = cv.CascadeClassifier('haar_face.xml')
 
-people = ['Tom Cruise', 'Ben Afflek', 'Jerry Seinfeld', 'Madonna', 'Scarlett Johansson', 'Aryan', 'Aarav']
+people = ['Tom Cruise', 'Ben Afflek', 'Jerry Seinfeld', 'Madonna', 'Scarlett Johansson']
 
 face_recognizer = cv.face.LBPHFaceRecognizer_create()
 face_recognizer.read('face_trained.yml')
